@@ -14,8 +14,10 @@ struct Queue {
 
     void push(string value);
     bool isEmpty();
+    bool isFull(); 
     string pop();   
     string peek();
     int Size();
+    void clear(); 
+    int Capacity(); 
 };
-
