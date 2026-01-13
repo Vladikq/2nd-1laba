@@ -1,47 +1,80 @@
 #include "../include/queue.h"
 
-Queue::Queue(int cap) : capacity(cap), front(0), rear(-1), size(0) { 
-    data = new string[capacity];                    // Инициализация кольцевого буфера
-}
-
-Queue::Queue() : capacity(30), front(0), rear(-1), size(0) { 
-    data = new string[capacity];                    // Конструктор по умолчанию
-}
-
-Queue::~Queue() { 
-    delete[] data;                                  // Освобождение памяти
-}
-
-bool Queue::isEmpty() { 
-    return size == 0;                               // Проверка по счетчику элементов
-}
-
-void Queue::push(string value) {  
-    if (size == capacity) { 
-        throw overflow_error(" Queue is full ");    // Проверка переполнения
+Queue::Queue(int cap) : capacity(cap), front(0), rear(-1), size(0) {
+    if(capacity <= 0) {
+        capacity = 30; // Защита от некорректного размера
     }
-    rear = (rear + 1) % capacity;                   // Циклическое перемещение rear
-    data[rear] = value;                             // Запись в конец очереди
-    size++;                                         // Увеличение счетчика
+    data = new string[capacity];
 }
 
-string Queue::pop() { 
-    if (size == 0) { 
-        throw overflow_error(" Queue is empty");    // Проверка пустоты
+Queue::Queue() : capacity(30), front(0), rear(-1), size(0) {
+    data = new string[capacity];
+}
+
+Queue::~Queue() {
+    delete[] data;
+}
+
+bool Queue::isEmpty() {
+    return size == 0;
+}
+
+bool Queue::isFull() {
+    return size == capacity;
+}
+
+void Queue::push(string value) {
+    if (isFull()) {
+        // Автоматическое расширение очереди
+        int newCapacity = capacity * 2;
+        string* newData = new string[newCapacity];
+        
+        // Копируем элементы в новый массив
+        for(int i = 0; i < size; i++) {
+            newData[i] = data[(front + i) % capacity];
+        }
+        
+        delete[] data;
+        data = newData;
+        front = 0;
+        rear = size - 1;
+        capacity = newCapacity;
     }
-    string value = data[front];                     // Чтение из начала
-    front = (front + 1) % capacity;                 // Циклическое перемещение front
-    size--;                                         // Уменьшение счетчика
+    
+    rear = (rear + 1) % capacity;
+    data[rear] = value;
+    size++;
+}
+
+string Queue::pop() {
+    if (isEmpty()) {
+        throw underflow_error("Queue is empty"); // Правильное исключение
+    }
+    string value = data[front];
+    front = (front + 1) % capacity;
+    size--;
     return value;
-} 
-
-string Queue::peek() { 
-    if (isEmpty()) { 
-        throw underflow_error(" Queue is empty ");  // Проверка пустоты
-    }
-    return data[front];                             // Чтение без удаления
 }
 
-int Queue::Size() { 
-    return size;                                    // Текущее количество элементов
+string Queue::peek() {
+    if (isEmpty()) {
+        throw underflow_error("Queue is empty");
+    }
+    return data[front];
+}
+
+int Queue::Size() {
+    return size;
+}
+
+// НОВЫЙ МЕТОД: очистка очереди
+void Queue::clear() {
+    front = 0;
+    rear = -1;
+    size = 0;
+}
+
+// НОВЫЙ МЕТОД: получение емкости
+int Queue::Capacity() {
+    return capacity;
 }
