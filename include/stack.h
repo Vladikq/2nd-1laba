@@ -4,7 +4,7 @@
 struct Stack { 
     string* data;
     int head;
-    int capacity;  
+    size_t capacity;  
 
     Stack(size_t size);
     Stack();
@@ -14,5 +14,8 @@ struct Stack {
     string pop();
     string peek();
     bool isEmpty();
+    bool isFull(); 
     size_t size();
+    void clear(); 
+    size_t getCapacity(); 
 };
