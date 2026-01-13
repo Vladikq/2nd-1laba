@@ -17,4 +17,12 @@ struct Array
     void remove(size_t index);
     void replace(size_t index, string value);
     size_t getSize() const;
+    
+    // НОВЫЕ МЕТОДЫ:
+    size_t getVolume() const;
+    void clear();
+    bool isEmpty() const { return size == 0; }
+    
+private:
+    void _resize(size_t newVolume);
 };
