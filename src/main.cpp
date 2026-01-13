@@ -76,12 +76,13 @@ void MPUSH(string& name, string& filenm, string& value) {
     }
 }
 
+
 void MPUSHIND(string& name, string& value, size_t index, string& filenm) {
     string futext = Futext(filenm, name);
     Array arr = hReadFile(filenm, name);
 
     string str;
-    if (arr.getSize() != 0 && index < arr.getSize()) {
+    if (arr.getSize() != 0 && index <= arr.getSize()) { // <= вместо <
         arr.add(index, value);
         str = name + ' ';
         for (size_t i = 0; i < arr.getSize(); ++i) {
@@ -94,9 +95,37 @@ void MPUSHIND(string& name, string& value, size_t index, string& filenm) {
         futext += str;
         writefl(filenm, futext);
     } else {
-        cout << " Ошибка, индекс выходит за размеры массива! " << endl;
-        exit(1);
+        throw out_of_range("Ошибка, индекс выходит за размеры массива!");
+        // Вместо: cout << " Ошибка... " << endl; exit(1);
     }
+}
+
+// Исправленный sReadFile:
+void sReadFile(string& filenm, string& nameStruct, Stack& data) {
+    Stack temp(30); // Временный стек для восстановления порядка
+    string str;
+    ifstream fin;
+    fin.open(filenm);
+
+    while (getline(fin, str)) {
+        stringstream ss(str);
+        string tokens;
+        getline(ss, tokens, ' ');
+        if (tokens == nameStruct) {
+            // Читаем все значения в строке
+            while (getline(ss, tokens, ' ')) {
+                if (!tokens.empty()) {
+                    temp.push(tokens);
+                }
+            }
+            // Переносим из temp в data в правильном порядке
+            while (!temp.isEmpty()) {
+                data.push(temp.peek());
+                temp.pop();
+            }
+        }
+    }
+    fin.close();
 }
 
 void MREMOVE(string& name, size_t index, string& filenm) {
