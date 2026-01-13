@@ -1,73 +1,93 @@
 #include "../include/array.h"
 
-Array::Array() : volume(10), size(0) {              // Инициализация через список инициализации
-    arr = new string[volume];                       // Выделение памяти начального объема
+Array::Array() : volume(10), size(0) {
+    arr = new string[volume];
 }
 
-Array::~Array() {  
-    delete[] arr;                                   // Освобождение динамического массива
+Array::~Array() {
+    delete[] arr;
 }
 
-void Array::ShowArray() const { 
-    for(size_t i = 0; i < size; ++i) { 
-        cout << arr[i] << endl;                     // Построчный вывод элементов
+// ПРИВАТНЫЙ МЕТОД: расширение буфера
+void Array::_resize(size_t newVolume) {
+    string *newArr = new string[newVolume];
+    for(size_t i = 0; i < size; ++i) {
+        newArr[i] = arr[i];
+    }
+    delete[] arr;
+    arr = newArr;
+    volume = newVolume;
+}
+
+void Array::ShowArray() const {
+    for(size_t i = 0; i < size; ++i) {
+        cout << arr[i] << endl;
     }
     cout << endl;
 }
 
-void Array::addToEnd(string value) { 
-    string *newArr = new string[size + 1];          // Создание нового массива на 1 элемент больше
-    for(size_t i = 0; i < size; ++i) { 
-        newArr[i] = arr[i];                         // Копирование существующих элементов
+void Array::addToEnd(string value) {
+    if(size == volume) {
+        _resize(volume * 2); // Увеличиваем в 2 раза
     }
-    delete[] arr;                                   
-    arr = newArr;                                   // Перенаправление указателя
-    arr[size++] = value;                            // Добавление нового элемента и инкремент размера
+    arr[size++] = value;
 }
 
-void Array::add(size_t index, string value) { 
-    if(index >= size) return;                       // Проверка корректности индекса
-
-    string *newArr = new string[size + 1];          // Новый массив с увеличенным размером
-    for(size_t i = 0; i < index; ++i) {  
-        newArr[i] = arr[i];                         
+void Array::add(size_t index, string value) {
+    if(index > size) return; // Допускаем index == size (добавление в конец)
+    
+    if(size == volume) {
+        _resize(volume * 2);
     }
-    newArr[index] = value;                          // Вставка нового значения
-    for(size_t i = index; i < size; ++i) {  
-        newArr[i + 1] = arr[i];                     // Копирование элементов после индекса со сдвигом
+    
+    // Сдвигаем элементы вправо
+    for(size_t i = size; i > index; --i) {
+        arr[i] = arr[i-1];
     }
-    delete[] arr;
-    arr = newArr;
-    size++;                                         // Увеличение размера
+    arr[index] = value;
+    size++;
 }
 
-string Array::getIndex(size_t index) { 
+string Array::getIndex(size_t index) {
     if(index >= size) {
-        throw out_of_range("Index out of range");   // Проверка выхода за границы
+        throw out_of_range("Index out of range");
     }
-    return arr[index];                              // Возврат элемента по индексу
+    return arr[index];
 }
 
-void Array::remove(size_t index) { 
-    if(index >= size) return;                       // Проверка валидности индекса
+void Array::remove(size_t index) {
+    if(index >= size) return;
+    
+    // Сдвигаем элементы влево
+    for(size_t i = index; i < size - 1; ++i) {
+        arr[i] = arr[i+1];
+    }
+    size--;
+    
+    // Сжимаем массив если слишком пустой
+    if(size < volume / 4 && volume > 10) {
+        _resize(volume / 2);
+    }
+}
 
-    string *newArr = new string[size - 1];          
-    for(size_t i = 0; i < index; ++i) {
-        newArr[i] = arr[i];                         // Копирование элементов до удаляемого
-    }
-    for(size_t i = index + 1; i < size; ++i) { 
-        newArr[i - 1] = arr[i];                     // Копирование элементов после удаляемого со сдвигом
-    }
+void Array::replace(size_t index, string value) {
+    if(index >= size) return;
+    arr[index] = value;
+}
+
+size_t Array::getSize() const {
+    return size;
+}
+
+// НОВЫЙ МЕТОД: получение емкости
+size_t Array::getVolume() const {
+    return volume;
+}
+
+// НОВЫЙ МЕТОД: очистка массива
+void Array::clear() {
+    size = 0;
     delete[] arr;
-    arr = newArr;
-    size--;                                         // Уменьшение размера
-}
-
-void Array::replace(size_t index, string value) { 
-    if(index >= size) return;                       // Проверка границ
-    arr[index] = value;                             // Замена значения по индексу
-}
-
-size_t Array::getSize() const {  
-    return size;                                    // Возврат текущего размера
+    volume = 10;
+    arr = new string[volume];
 }
