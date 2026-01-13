@@ -53,3 +53,4 @@ struct DoubleLinkedList {
     void clearDList();
     DoubleNode* getHead() const;  // УБЕДИСЬ ЧТО ЕСТЬ
 };
+
